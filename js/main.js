@@ -73,18 +73,21 @@ function eliminarDelCarrito() {
     }
 }
 
+function calcularTotal() {
+    let listaCarrito = "Carrito de compras:\n";
+    let total = 0;
+    for (let i = 0; i < carritoNombres.length; i++) {
+        listaCarrito += `- ${carritoNombres[i]}: $${carritoPrecios[i]}\n`;
+        total += carritoPrecios[i];
+    }
+    return { listaCarrito, total };
+}
+
 function verCarrito() {
     if (carritoNombres.length === 0) {
         alert("Tu carrito está vacío.");
     } else {
-        let mensaje = "Carrito de compras:\n";
-        let total = 0;
-        for (let i = 0; i < carritoNombres.length; i++) {
-            mensaje += `- ${carritoNombres[i]}: $${carritoPrecios[i]}\n`;
-            total += carritoPrecios[i];
-        }
-        mensaje += `\nTotal: $${total}`;
-        alert(mensaje);
+        alert(calcularTotal().listaCarrito + `\nTotal: $${calcularTotal().total}`);
     }
 }
 
@@ -94,11 +97,7 @@ function finalizarCompra() {
         return;
     }
 
-    let total = 0;
-    for (let i = 0; i < carritoPrecios.length; i++) {
-        total += carritoPrecios[i];
-    }
-    let confirmacion = confirm(`Total a pagar: $${total}.\n¿Desea confirmar la compra?`);
+    let confirmacion = confirm(`Total a pagar: $${calcularTotal().total}.\n¿Desea confirmar la compra?`);
 
     if (confirmacion) {
         alert("Compra realizada con éxito. Gracias por comprar en Mueblería Pérez.");
