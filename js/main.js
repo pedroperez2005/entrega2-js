@@ -1,109 +1,87 @@
-let opcion;
-const carritoNombres = [];
-const carritoPrecios = [];
-const productosNombres = ["Sillón de terciopelo", "Mesa de comedor", "Silla gamer", "Cama King Size"];
-const productosPrecios = [3000, 5000, 2100, 7700]; //Pesos mexicanos ;)
-
-do {
-    opcion = parseInt(prompt(
-        "¡Bienvenido a Mueblería Pérez!\n\n" +
-        "1. Agregar producto al carrito\n" +
-        "2. Eliminar producto del carrito\n" +
-        "3. Ver carrito\n" +
-        "4. Finalizar compra\n" +
-        "0. Salir"
-    ));
-
-    switch (opcion) {
-        case 0:
-            alert("¡Gracias por visitarnos!");
-            break;
-        case 1:
-            agregarAlCarrito();
-            break;
-        case 2:
-            eliminarDelCarrito();
-            break;
-        case 3:
-            verCarrito();
-            break;
-        case 4:
-            finalizarCompra();
-            break;
-        default:
-            alert("Opción inválida.");
+const productos = [
+    {
+        nombre: "Sillón de terciopelo",
+        precio: 3000
+    },
+    {
+        nombre: "Mesa de comedor",
+        precio: 5000
+    },
+    {
+        nombre: "Silla gamer",
+        precio: 2100
+    },
+    {
+        nombre: "Cama King Size",
+        precio: 7700
     }
-} while (opcion !== 0);
+];
 
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-function agregarAlCarrito() {
-    let mensaje = "Ingrese el número del producto que desea agregar:\n\n";
-    for (let i = 0; i < productosNombres.length; i++) {
-        mensaje += `${i + 1}. ${productosNombres[i]} - $${productosPrecios[i]}\n`;
-    }
-    let seleccion = parseInt(prompt(mensaje)) - 1;
+const productosContainer = document.getElementById("productos");
+const carritoContainer = document.getElementById("carrito");
+const totalContainer = document.getElementById("total");
+const finalizarBtn = document.getElementById("finalizar");
 
-    if (seleccion >= 0 && seleccion < productosNombres.length) {
-        carritoNombres.push(productosNombres[seleccion]);
-        carritoPrecios.push(productosPrecios[seleccion]);
-        alert(`${productosNombres[seleccion]} agregado al carrito.`);
-    } else {
-        alert("Opción inválida.");
-    }
+function mostrarProductos() {
+    productosContainer.innerHTML = "";
+    productos.forEach((producto, index) => {
+        productosContainer.innerHTML += `
+            <div class="p-4 border rounded-lg shadow-md bg-white">
+                <h3 class="text-lg font-semibold">${producto.nombre}</h3>
+                <p class="text-gray-700">$${producto.precio}</p>
+                <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded" onclick="agregarAlCarrito(${index})">
+                    Agregar al carrito
+                </button>
+            </div>
+        `;
+    });
 }
 
-function eliminarDelCarrito() {
-    if (carritoNombres.length === 0) {
-        alert("No hay productos en el carrito para eliminar.");
-        return;
-    }
-
-    let mensaje = "Ingrese el número del producto que desea eliminar:\n\n";
-    for (let i = 0; i < carritoNombres.length; i++) {
-        mensaje += `${i + 1}. ${carritoNombres[i]} - $${carritoPrecios[i]}\n`;
-    }
-    let indexEliminar = parseInt(prompt(mensaje)) - 1;
-
-    if (indexEliminar >= 0 && indexEliminar < carritoNombres.length) {
-        let eliminadoNombre = carritoNombres.splice(indexEliminar, 1);
-        carritoPrecios.splice(indexEliminar, 1);
-        alert(`${eliminadoNombre[0]} eliminado del carrito.`);
-    } else {
-        alert("Opción inválida.");
-    }
-}
-
-function calcularTotal() {
-    let listaCarrito = "Carrito de compras:\n";
+function actualizarCarrito() {
+    carritoContainer.innerHTML = "";
     let total = 0;
-    for (let i = 0; i < carritoNombres.length; i++) {
-        listaCarrito += `- ${carritoNombres[i]}: $${carritoPrecios[i]}\n`;
-        total += carritoPrecios[i];
-    }
-    return { listaCarrito, total };
+
+    carrito.forEach((item, index) => {
+        total += item.precio;
+        carritoContainer.innerHTML += `
+            <div class="flex justify-between p-2 bg-gray-100 rounded-lg my-2">
+                <p>${item.nombre} - $${item.precio}</p>
+                <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="eliminarDelCarrito(${index})">X</button>
+            </div>
+        `;
+    });
+
+    totalContainer.textContent = `Total: $${total}`;
+    localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-function verCarrito() {
-    if (carritoNombres.length === 0) {
-        alert("Tu carrito está vacío.");
-    } else {
-        alert(calcularTotal().listaCarrito + `\nTotal: $${calcularTotal().total}`);
-    }
+function agregarAlCarrito(index) {
+    carrito.push(productos[index]);
+    actualizarCarrito();
+}
+
+function eliminarDelCarrito(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
 }
 
 function finalizarCompra() {
-    if (carritoNombres.length === 0) {
-        alert("No puedes finalizar la compra con el carrito vacío.");
+    if (carrito.length === 0) {
+        alert("El carrito está vacío.");
         return;
     }
 
-    let confirmacion = confirm(`Total a pagar: $${calcularTotal().total}.\n¿Desea confirmar la compra?`);
-
-    if (confirmacion) {
-        alert("Compra realizada con éxito. Gracias por comprar en Mueblería Pérez.");
-        carritoNombres.length = 0;
-        carritoPrecios.length = 0;
-    } else {
-        alert("La compra fue cancelada.");
+    if (confirm(`Total a pagar: $${carrito.reduce((sum, item) => sum + item.precio, 0)}. ¿Desea confirmar la compra?`)) {
+        alert("¡Compra realizada con éxito! Gracias por comprar en Mueblería Pérez.");
+        carrito = [];
+        localStorage.removeItem("carrito");
+        actualizarCarrito();
     }
 }
+
+finalizarBtn.addEventListener("click", finalizarCompra);
+
+mostrarProductos();
+actualizarCarrito();
