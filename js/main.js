@@ -1,19 +1,23 @@
 const productos = [
     {
         nombre: "Sillón de terciopelo",
-        precio: 3000
+        precio: 3000,
+        img: '../img/sillon_terciopelo.jpg'
     },
     {
         nombre: "Mesa de comedor",
-        precio: 5000
+        precio: 5000,
+        img: '../img/mesa_comedor.jpg'
     },
     {
         nombre: "Silla gamer",
-        precio: 2100
+        precio: 2100,
+        img: '../img/silla_gamer.jpg'
     },
     {
         nombre: "Cama King Size",
-        precio: 7700
+        precio: 7700,
+        img: '../img/cama_king_sz.jpg'
     }
 ];
 
@@ -29,6 +33,7 @@ function mostrarProductos() {
     productos.forEach((producto, index) => {
         productosContainer.innerHTML += `
             <div class="p-4 border rounded-lg shadow-md bg-white">
+                <img src="${producto.img}" class="h-64 w-full object-contain ">
                 <h3 class="text-lg font-semibold">${producto.nombre}</h3>
                 <p class="text-gray-700">$${producto.precio}</p>
                 <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded" onclick="agregarAlCarrito(${index})">
